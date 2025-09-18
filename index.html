@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Q&A Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chat-container {
+            width: 90%;
+            max-width: 800px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .bot-message {
+            background: white;
+            color: #333;
+            align-self: flex-start;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+        }
+
+        .send-button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-button:active {
+            transform: translateY(0);
+        }
+
+        .welcome-message {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #2196f3;
+        }
+
+        .welcome-message h3 {
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .welcome-message p {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                width: 95%;
+                height: 95vh;
+                border-radius: 15px;
+            }
+
+            .message {
+                max-width: 85%;
+            }
+
+            .chat-header {
+                font-size: 1.3rem;
+                padding: 15px;
+            }
+
+            .chat-input-container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            Student Q&A Chatbot
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="welcome-message">
+                <h3>Welcome! 👋</h3>
+                <p>I'm here to help answer your student questions. Try asking me about subjects, programming languages, clubs, internships, or career opportunities!</p>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <input 
+                type="text" 
+                class="chat-input" 
+                id="chatInput" 
+                placeholder="Type your question here..."
+                autocomplete="off"
+            >
+            <button class="send-button" id="sendButton">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Predefined Q&A dataset
+        const qaDataset = {
+            "what subjects are in 1st year": "In 1st year, you will study Physics, Mathematics, Basic Electrical, Programming in C, etc.",
+            "which programming languages should i learn": "Start with C and Python, later focus on Java and Data Structures.",
+            "what are the important clubs": "Linux Club, Vitronix, Coding Club etc. help in projects and hackathons.",
+            "how can i apply for internship": "You can start after 1st year with small projects, from 2nd year onwards apply on LinkedIn, Internshala, and college TnP cell.",
+            "what is cse (education technology)?": "CSE(Education Technology) is a branch of Computer Science that focuses on applying technology to improve the education sector, including e-learning platforms, AI in education, digital content development, and online learning systems.",
+            "what are the career opportunities after this branch?": "Graduates can work as Software Developers, Data Scientists, AI/ML Engineers, Cloud Engineers, EdTech Platform Engineers, E-Learning Application Developers and Research Specialists in educational technology.",
+            "who is diksha?": "diksha is a good girl."
+        };
+
+        // Get DOM elements
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+
+        // Function to add message to chat
+        function addMessage(message, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.textContent = message;
+            
+            chatMessages.appendChild(messageDiv);
+            
+            // Auto-scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Function to get bot response
+        function getBotResponse(userQuestion) {
+            // Convert to lowercase for case-insensitive matching
+            const normalizedQuestion = userQuestion.toLowerCase().trim();
+            
+            // Check if question exists in dataset
+            if (qaDataset.hasOwnProperty(normalizedQuestion)) {
+                return qaDataset[normalizedQuestion];
+            } else {
+                return "Sorry, I don't have an answer for that.";
+            }
+        }
+
+        // Function to handle sending message
+        function sendMessage() {
+            const userMessage = chatInput.value.trim();
+            
+            if (userMessage === '') {
+                return;
+            }
+            
+            // Add user message to chat
+            addMessage(userMessage, true);
+            
+            // Get bot response
+            const botResponse = getBotResponse(userMessage);
+            
+            // Add bot response with slight delay for better UX
+            setTimeout(() => {
+                addMessage(botResponse, false);
+            }, 500);
+            
+            // Clear input
+            chatInput.value = '';
+        }
+
+        // Event listeners
+        sendButton.addEventListener('click', sendMessage);
+
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Focus on input when page loads
+        window.addEventListener('load', function() {
+            chatInput.focus();
+        });
+    </script>
+</body>
+</html>
