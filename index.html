@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -221,77 +220,52 @@
             "which programming languages should i learn": "Start with C and Python, later focus on Java and Data Structures.",
             "what are the important clubs": "Linux Club, Vitronix, Coding Club etc. help in projects and hackathons.",
             "how can i apply for internship": "You can start after 1st year with small projects, from 2nd year onwards apply on LinkedIn, Internshala, and college TnP cell.",
-            "what is cse (education technology)?": "CSE(Education Technology) is a branch of Computer Science that focuses on applying technology to improve the education sector, including e-learning platforms, AI in education, digital content development, and online learning systems.",
-            "what are the career opportunities after this branch?": "Graduates can work as Software Developers, Data Scientists, AI/ML Engineers, Cloud Engineers, EdTech Platform Engineers, E-Learning Application Developers and Research Specialists in educational technology.",
-            "who is diksha?": "diksha is a good girl."
+            "what is cse (education technology)": "CSE(Education Technology) is a branch of Computer Science that focuses on applying technology to improve the education sector, including e-learning platforms, AI in education, digital content development, and online learning systems.",
+            "what are the career opportunities after this branch": "Graduates can work as Software Developers, Data Scientists, AI/ML Engineers, Cloud Engineers, EdTech Platform Engineers, E-Learning Application Developers and Research Specialists in educational technology.",
+            "who is diksha": "Diksha is a good girl."
         };
 
-        // Get DOM elements
         const chatMessages = document.getElementById('chatMessages');
         const chatInput = document.getElementById('chatInput');
         const sendButton = document.getElementById('sendButton');
 
-        // Function to add message to chat
         function addMessage(message, isUser = false) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
             messageDiv.textContent = message;
-            
             chatMessages.appendChild(messageDiv);
-            
-            // Auto-scroll to bottom
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // Function to get bot response
         function getBotResponse(userQuestion) {
-            // Convert to lowercase for case-insensitive matching
-            const normalizedQuestion = userQuestion.toLowerCase().trim();
-            
-            // Check if question exists in dataset
-            if (qaDataset.hasOwnProperty(normalizedQuestion)) {
-                return qaDataset[normalizedQuestion];
-            } else {
-                return "Sorry, I don't have an answer for that.";
+            const normalizedQuestion = userQuestion
+                .toLowerCase()
+                .trim()
+                .replace(/[?.!]/g, ''); // remove punctuation
+
+            for (let key in qaDataset) {
+                if (normalizedQuestion.includes(key)) {
+                    return qaDataset[key];
+                }
             }
+            return "Sorry, I don't have an answer for that.";
         }
 
-        // Function to handle sending message
         function sendMessage() {
             const userMessage = chatInput.value.trim();
-            
-            if (userMessage === '') {
-                return;
-            }
-            
-            // Add user message to chat
+            if (userMessage === '') return;
+
             addMessage(userMessage, true);
-            
-            // Get bot response
             const botResponse = getBotResponse(userMessage);
-            
-            // Add bot response with slight delay for better UX
-            setTimeout(() => {
-                addMessage(botResponse, false);
-            }, 500);
-            
-            // Clear input
+            setTimeout(() => addMessage(botResponse, false), 400);
             chatInput.value = '';
         }
 
-        // Event listeners
         sendButton.addEventListener('click', sendMessage);
-
-        chatInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
+        chatInput.addEventListener('keypress', e => {
+            if (e.key === 'Enter') sendMessage();
         });
-
-        // Focus on input when page loads
-        window.addEventListener('load', function() {
-            chatInput.focus();
-        });
+        window.addEventListener('load', () => chatInput.focus());
     </script>
 </body>
 </html>
